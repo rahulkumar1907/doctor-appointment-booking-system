@@ -50,7 +50,6 @@ const createDoctor = async (req, res) => {
     });
   } catch (error) {
     // handle any errors during the process
-    console.log(error);
     return res.status(500).send({
       status: false,
       message: "internal server error",

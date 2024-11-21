@@ -151,16 +151,12 @@ const loginUser = async (req, res) => {
       return res
         .status(400)
         .send({ status: false, message: "invalid password" });
-    // console.log("process.env.JWT_SECRET", process.env.JWT_SECRET);
     const accessToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
 
     res.setHeader("Authorization", `Bearer ${accessToken}`);
-    // console.log(
-    //   "process.env.JWT_REFRESH_SECRET",
-    //   process.env.JWT_REFRESH_SECRET
-    // );
+
     const refreshToken = jwt.sign(
       { userId: user._id },
       process.env.JWT_REFRESH_SECRET,
@@ -179,7 +175,6 @@ const loginUser = async (req, res) => {
       access_token: accessToken,
     });
   } catch (error) {
-    console.log(error);
     return res
       .status(500)
       .send({ status: false, message: "internal server error" });
@@ -203,7 +198,7 @@ const regenerateAccessToken = (req, res) => {
           .send({ status: false, message: "invalid refresh token" });
       }
 
-      // Generate new access token
+      // generate new access token
       const newAccessToken = jwt.sign(
         { userId: decoded.userId },
         process.env.JWT_SECRET,
@@ -217,10 +212,9 @@ const regenerateAccessToken = (req, res) => {
       });
     });
   } catch (error) {
-    console.log(error);
     return res.status(500).send({
       status: false,
-      message: "Internal server error",
+      message: "internal server error",
     });
   }
 };
