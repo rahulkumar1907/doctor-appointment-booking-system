@@ -1,13 +1,20 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import connectDB from "./config/db.mjs";
+import authRoutes from "./routes/authRoutes.mjs";
+import appointmentRoutes from "./routes/appointmentRoutes.mjs";
 
 dotenv.config();
 const PORT = 3000;
 const app = express();
+connectDB();
 
 app.use(express.json());
-connectDB();
+app.use(cors());
+
+app.use("/api", authRoutes);
+app.use("/api", appointmentRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
