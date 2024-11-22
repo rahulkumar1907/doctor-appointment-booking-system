@@ -12,79 +12,77 @@
  
 # user or patient schema
 userSchema Explanation:
-firstName:
 
+# firstName:
 Type: String
 required: true: This field is mandatory; a value must be provided when creating a user.
-lastName:
 
+# lastName:
 Type: String
 required: true: This field is mandatory; a value must be provided.
-email:
 
+# email:
 Type: String
 required: true: This field is mandatory.
 unique: true: Ensures that the email address must be unique across all users (no duplicates).
-password:
 
+# password:
 Type: String
 required: true: This field is mandatory.
-isDeleted:
 
+# isDeleted:
 Type: Boolean
 default: false: If not provided, the value will be false (indicating the user is not deleted by default).
-Timestamps:
 
+# Timestamps:
 The { timestamps: true } option automatically adds two fields to the schema: createdAt and updatedAt. These fields store the creation and last modification time of each document.
 
 # doctor schema
 
 doctorSchema Explanation:
-name:
-
+# name:
 Type: String
 required: true: This field is mandatory; the name of the doctor must be provided when creating a doctor document.
 unique: true: The doctor's name must be unique in the collection (no duplicate names allowed).
-specialization:
 
+# specialization:
 Type: String
 required: true: This field is mandatory; the specialization of the doctor must be provided (e.g., cardiologist, pediatrician, etc.).
-isDeleted:
 
+# isDeleted:
 Type: Boolean
 default: false: If not provided, the value will default to false, indicating that the doctor is not deleted by default. This field can be used for soft deletion (marking the doctor as deleted without actually removing the document from the database).
-Timestamps:
 
+# Timestamps:
 The { timestamps: true } option automatically adds two fields: createdAt and updatedAt. These fields store the creation and last modification times of each document.
 
 # appointment schema
 
 appointmentSchema Explanation:
-patientId:
-
+# patientId:
 Type: mongoose.Schema.Types.ObjectId
 ref: "users": This establishes a reference to the users collection, linking the appointment to a specific patient.
 required: true: This field is mandatory, meaning the appointment must have a linked patient.
-doctorId:
 
+# doctorId:
 Type: mongoose.Schema.Types.ObjectId
 ref: "doctors": This establishes a reference to the doctors collection, linking the appointment to a specific doctor.
 required: true: This field is mandatory, meaning the appointment must have a linked doctor.
-appointmentStartTime:
 
+# appointmentStartTime:
 Type: String
 required: true: This field is mandatory, meaning the start time of the appointment must be provided in string format (e.g., "10:30AM").
-appointmentEndTime:
 
+# appointmentEndTime:
 Type: String
 required: true: This field is mandatory, meaning the end time of the appointment must be provided in string format (e.g., "11:30AM").
-status:
 
+# status:
 Type: String
 enum: ["booked", "cancelled", "modified"]: The status of the appointment must be one of the three values: "booked", "cancelled", or "modified". This ensures that only valid status values are used.
 default: "booked": If no value for status is provided, the default status will be "booked", meaning the appointment is initially considered booked.
-Timestamps:
 
+# Timestamps:
 The { timestamps: true } option adds two fields automatically: createdAt and updatedAt. These fields record the creation time and the last time the appointment was updated.
 
 # Https Status Code Used
