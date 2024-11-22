@@ -18,7 +18,7 @@ const authentication = (req, res, next) => {
       return res.status(403).json({ status: false, message: "invalid token" });
     }
 
-    // token is valid, proceed further
+    // token is valid, proceed further by assiging userId to req body
     req.body.userId = decoded.userId;
     next();
   });

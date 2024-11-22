@@ -59,7 +59,7 @@ const bookAppointment = async (req, res) => {
       });
     }
 
-    // convert appointment start and end times to Date objects for accurate comparison
+    // convert appointment start and end times to date objects for comparison
     const startTime = new Date(
       `1970-01-01T${appointmentStartTime.slice(
         0,
@@ -171,7 +171,6 @@ const bookAppointment = async (req, res) => {
       data: responseData,
     });
   } catch (error) {
-    console.log(error);
     return res
       .status(500)
       .send({ status: false, message: "internal server error" });
@@ -345,7 +344,6 @@ const cancelAppointment = async (req, res) => {
       data: updatedAppointment,
     });
   } catch (error) {
-    console.log("error", error);
     return res
       .status(500)
       .send({ status: false, message: "internal server error" });
@@ -560,7 +558,6 @@ const modifyAppointment = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log(error);
     return res.status(500).json({
       status: false,
       message: "internal server error",
