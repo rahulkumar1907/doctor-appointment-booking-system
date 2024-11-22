@@ -1,6 +1,7 @@
 import appointmentModel from "../model/appointments.mjs";
 import doctorModel from "../model/doctor.mjs";
 import userModel from "../model/user.mjs";
+import checkAppointmentTimes from "../middleware/timeCheck.mjs";
 
 const bookAppointment = async (req, res) => {
   try {
@@ -59,27 +60,15 @@ const bookAppointment = async (req, res) => {
       });
     }
 
-    // convert appointment start and end times to date objects for comparison
-    const startTime = new Date(
-      `1970-01-01T${appointmentStartTime.slice(
-        0,
-        -2
-      )}:00 ${appointmentStartTime.slice(-2)}`
-    );
-    const endTime = new Date(
-      `1970-01-01T${appointmentEndTime.slice(
-        0,
-        -2
-      )}:00 ${appointmentEndTime.slice(-2)}`
+    // time validation for appointment
+    const timedata = checkAppointmentTimes(
+      appointmentStartTime,
+      appointmentEndTime
     );
 
-    if (startTime >= endTime) {
-      return res.status(400).send({
-        status: false,
-        message: "appointment end time must be after start time",
-      });
+    if (timedata.status === false) {
+      return res.status(400).send(timedata);
     }
-
     // find the user and authorization check
     const user = await userModel.findOne({ _id: userId, isDeleted: false });
     if (!user) {
@@ -117,7 +106,7 @@ const bookAppointment = async (req, res) => {
     });
 
     if (conflictingDoctorAppointment) {
-      return res.status(400).json({
+      return res.status(400).send({
         status: false,
         message:
           "appointment time slot conflicts with another booking for the doctor",
@@ -171,6 +160,7 @@ const bookAppointment = async (req, res) => {
       data: responseData,
     });
   } catch (error) {
+    console.log(error);
     return res
       .status(500)
       .send({ status: false, message: "internal server error" });
@@ -293,6 +283,15 @@ const cancelAppointment = async (req, res) => {
           "invalid time format. expected format: HH:MM AM/PM in 12 hours clock format",
       });
     }
+    // time validation for appointment
+    const timedata = checkAppointmentTimes(
+      appointmentStartTime,
+      appointmentEndTime
+    );
+
+    if (timedata.status === false) {
+      return res.status(400).send(timedata);
+    }
     // find the patient by email
     const patient = await userModel.findOne({ email: email, isDeleted: false });
     if (!patient) {
@@ -356,7 +355,7 @@ const viewAppointmentsByDoctor = async (req, res) => {
 
     // validate the doctor name
     if (!doctorName) {
-      return res.status(400).json({
+      return res.status(400).send({
         status: false,
         message: "doctor name is required",
       });
@@ -368,7 +367,7 @@ const viewAppointmentsByDoctor = async (req, res) => {
       isDeleted: false,
     });
     if (!doctor) {
-      return res.status(404).json({
+      return res.status(404).send({
         status: false,
         message: "doctor not found",
       });
@@ -387,7 +386,7 @@ const viewAppointmentsByDoctor = async (req, res) => {
 
     // if no appointments are found
     if (appointments.length === 0) {
-      return res.status(404).json({
+      return res.status(404).send({
         status: false,
         message: "no booked appointments found for doctor",
       });
@@ -405,14 +404,14 @@ const viewAppointmentsByDoctor = async (req, res) => {
     }));
 
     // send the response
-    return res.status(200).json({
+    return res.status(200).send({
       status: true,
       message: "appointments retrieved successfully",
       data: responseData,
     });
   } catch (error) {
     console.error("Error:", error);
-    return res.status(500).json({
+    return res.status(500).send({
       status: false,
       message: "internal server error",
     });
@@ -445,7 +444,7 @@ const modifyAppointment = async (req, res) => {
       !newStartTime ||
       !newEndTime
     ) {
-      return res.status(400).json({
+      return res.status(400).send({
         status: false,
         message:
           "email, original start time, original end time, new start time, and new end time are required",
@@ -467,16 +466,29 @@ const modifyAppointment = async (req, res) => {
     // validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return res.status(400).json({
+      return res.status(400).send({
         status: false,
         message: "invalid email format",
       });
     }
+    // time validation for appointment
+    const timedataOriginal = checkAppointmentTimes(
+      originalStartTime,
+      originalEndTime
+    );
 
+    if (timedataOriginal.status === false) {
+      return res.status(400).send(timedataOriginal);
+    }
+    const timedataNew = checkAppointmentTimes(newStartTime, newEndTime);
+
+    if (timedataNew.status === false) {
+      return res.status(400).send(timedataNew);
+    }
     // find patient by email
     const patient = await userModel.findOne({ email: email, isDeleted: false });
     if (!patient) {
-      return res.status(404).json({
+      return res.status(404).send({
         status: false,
         message: "patient not found",
       });
@@ -498,7 +510,7 @@ const modifyAppointment = async (req, res) => {
     });
 
     if (!appointment) {
-      return res.status(404).json({
+      return res.status(404).send({
         status: false,
         message: "appointment not found with given time range",
       });
@@ -518,9 +530,10 @@ const modifyAppointment = async (req, res) => {
     });
 
     if (conflictingDoctorAppointment) {
-      return res.status(400).json({
+      return res.status(400).send({
         status: false,
-        message: "new time range conflicts with another booking for the doctor",
+        message:
+          "new time range conflicts with another booking for the same doctor",
       });
     }
 
@@ -538,7 +551,7 @@ const modifyAppointment = async (req, res) => {
       .populate("doctorId", "name specialization");
 
     // response with updated appointment details
-    return res.status(200).json({
+    return res.status(200).send({
       status: true,
       message: "appointment modified successfully",
       data: {
@@ -558,7 +571,7 @@ const modifyAppointment = async (req, res) => {
       },
     });
   } catch (error) {
-    return res.status(500).json({
+    return res.status(500).send({
       status: false,
       message: "internal server error",
     });
