@@ -355,7 +355,7 @@ Verifies if the doctor exists.
 Success: Returns a list of appointments for the doctor.
 Failure: Error if no appointments found.
 5. Modify Appointment
-# Endpoint: /modifyAppointment
+# Endpoint: api/modify-appointment
 # Method: PUT
 # Description: Allows a patient to modify an existing appointment.
 # Request Body:
