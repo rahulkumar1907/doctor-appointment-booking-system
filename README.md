@@ -6,7 +6,7 @@
    git clone https://github.com/rahulkumar1907/doctor-appointment-booking-system.git
 2. go to directory doctor-appointment-booking-system 
 3. run command npm i 
-4. run command npx nodemon index.js
+4. run command npx nodemon index.mjs
 
 # SCHEMA
  
